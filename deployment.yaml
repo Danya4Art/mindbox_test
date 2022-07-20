@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-deployment
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: my-app
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+      - image: quay.io/testing-farm/nginx:1.13
+
+        name: nginx
+        ports:
+        - containerPort: 80
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: 80
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+          initialDelaySeconds: 10
+        readinessProbe:
+          failureThreshold: 3
+          httpGet: 
+            path: /
+            port: 80
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        startupProbe:
+          # 5-10 seconds
+          httpGet:
+            path: /
+            port: 80
+          failureThreshold: 2
+          periodSeconds: 5
+        resources:
+          requests: 
+            cpu: 100m
+            memory: 128Mi # Maybe need to increase
+          limits:
+            cpu: 1 # For first requests and peak loads
+            memory: 128Mi

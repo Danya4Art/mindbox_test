@@ -1,0 +1,46 @@
+# optimize resources for day-night load cycle
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: scale-down-job # Reduce count of pods
+spec:
+  schedule: "0 20 * * *" # Every day at 8:00 PM
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure 
+          containers:
+          - name: kubectl
+            image: bitnami/kubectl:latest 
+            imagePullPolicy: IfNotPresent
+            args: 
+              - scale
+              - deployment
+              - --replicas=2
+              - my-deployment 
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: scale-up-job # Increase count of pods
+spec:
+  schedule: "0 8 * * *" # Every day at 8:00 AM
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: kubectl
+            image: bitnami/kubectl:latest
+            imagePullPolicy: IfNotPresent
+            args: 
+              - scale
+              - deployment
+              - --replicas=5
+              - my-deployment
