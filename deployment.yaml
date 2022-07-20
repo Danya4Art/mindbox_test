@@ -17,9 +17,15 @@ spec:
       labels:
         app: my-app
     spec:
+      affinity:
+        # ⬇⬇⬇ This ensures pods will land on separate hosts
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions: [{ key: app, operator: In, values: [hello] }]
+            topologyKey: "kubernetes.io/hostname"
       containers:
       - image: quay.io/testing-farm/nginx:1.13
-
         name: nginx
         ports:
         - containerPort: 80
