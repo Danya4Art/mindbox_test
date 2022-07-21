@@ -1,12 +1,12 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: my-deployment
+  name: test-deployment
 spec:
   replicas: 5
   selector:
     matchLabels:
-      app: my-app
+      app: test-app
   strategy:
     rollingUpdate:
       maxSurge: 1
@@ -15,15 +15,8 @@ spec:
   template:
     metadata:
       labels:
-        app: my-app
+        app: test-app
     spec:
-      affinity:
-        # ⬇⬇⬇ This ensures pods will land on separate hosts
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions: [{ key: app, operator: In, values: [hello] }]
-            topologyKey: "kubernetes.io/hostname"
       containers:
       - image: quay.io/testing-farm/nginx:1.13
         name: nginx

@@ -19,8 +19,8 @@ spec:
             args: 
               - scale
               - deployment
-              - --replicas=2
-              - my-deployment 
+              - --replicas=2 # Need to check peak load at night to configure
+              - test-deployment 
 ---
 apiVersion: batch/v1
 kind: CronJob
@@ -43,4 +43,4 @@ spec:
               - scale
               - deployment
               - --replicas=5
-              - my-deployment
+              - test-deployment

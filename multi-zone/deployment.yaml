@@ -1,0 +1,225 @@
+# This deployments are simillar except zones and number of replicas
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-deployment-zn0
+  namespace: default
+  labels:
+    app: test-deployment-zn0
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: test-deployment-zn0
+  template:
+    metadata:
+      labels:
+        app: test-deployment-zn0
+    spec:
+      affinity:
+        nodeAffinity:     # With this we can select which nodes to run on
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: failure-domain.beta.kubernetes.io/zone    # select the label key to match (you can find these in kubectl describe node ...)
+                operator: In
+                values:
+                - "zn0"   # only schedule on nodes that are in this zone 
+        podAntiAffinity:      #  Spread out the "test-deployment-zn0" pods on the worker nodes as evenly as possible
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - test-deployment-zn0    # if a pod matching app=test-deployment-zn0 already runs on a node, try to find another node
+              topologyKey: kubernetes.io/hostname
+      containers:
+        - image: quay.io/testing-farm/nginx:1.13
+          name: nginx
+          ports:
+          - containerPort: 80
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 80
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+            initialDelaySeconds: 10
+          readinessProbe:
+            failureThreshold: 3
+            httpGet: 
+              path: /
+              port: 80
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          startupProbe:
+            # 5-10 seconds
+            httpGet:
+              path: /
+              port: 80
+            failureThreshold: 2
+            periodSeconds: 5
+          resources:
+            requests: 
+              cpu: 100m
+              memory: 128Mi # Maybe need to increase
+            limits:
+              cpu: 1 # For first requests and peak loads
+              memory: 128Mi
+      restartPolicy: Always
+--- 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-deployment-zn1
+  namespace: default
+  labels:
+    app: test-deployment-zn1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: test-deployment-zn1
+  template:
+    metadata:
+      labels:
+        app: test-deployment-zn1
+    spec:
+      affinity:
+        nodeAffinity:     # With this we can select which nodes to run on
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: failure-domain.beta.kubernetes.io/zone    # select the label key to match (you can find these in kubectl describe node ...)
+                operator: In
+                values:
+                - "zn1"   # only schedule on nodes that are in this zone 
+        podAntiAffinity:      #  Spread out the "test-deployment-zn1" pods on the worker nodes as evenly as possible
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - test-deployment-zn1    # if a pod matching app=test-deployment-zn1 already runs on a node, try to find another node
+              topologyKey: kubernetes.io/hostname
+      containers:
+        - image: quay.io/testing-farm/nginx:1.13
+          name: nginx
+          ports:
+          - containerPort: 80
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 80
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+            initialDelaySeconds: 10
+          readinessProbe:
+            failureThreshold: 3
+            httpGet: 
+              path: /
+              port: 80
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          startupProbe:
+            # 5-10 seconds
+            httpGet:
+              path: /
+              port: 80
+            failureThreshold: 2
+            periodSeconds: 5
+          resources:
+            requests: 
+              cpu: 100m
+              memory: 128Mi # Maybe need to increase
+            limits:
+              cpu: 1 # For first requests and peak loads
+              memory: 128Mi
+      restartPolicy: Always
+--- 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-deployment-zn2
+  namespace: default
+  labels:
+    app: test-deployment-zn2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: test-deployment-zn2
+  template:
+    metadata:
+      labels:
+        app: test-deployment-zn2
+    spec:
+      affinity:
+        nodeAffinity:     # With this we can select which nodes to run on
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: failure-domain.beta.kubernetes.io/zone    # select the label key to match (you can find these in kubectl describe node ...)
+                operator: In
+                values:
+                - "zn2"   # only schedule on nodes that are in this zone 
+        podAntiAffinity:      #  Spread out the "test-deployment-zn2" pods on the worker nodes as evenly as possible
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - test-deployment-zn2    # if a pod matching app=test-deployment-zn2 already runs on a node, try to find another node
+              topologyKey: kubernetes.io/hostname
+      containers:
+        - image: quay.io/testing-farm/nginx:1.13
+          name: nginx
+          ports:
+          - containerPort: 80
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 80
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+            initialDelaySeconds: 10
+          readinessProbe:
+            failureThreshold: 3
+            httpGet: 
+              path: /
+              port: 80
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          startupProbe:
+            # 5-10 seconds
+            httpGet:
+              path: /
+              port: 80
+            failureThreshold: 2
+            periodSeconds: 5
+          resources:
+            requests: 
+              cpu: 100m
+              memory: 128Mi # Maybe need to increase
+            limits:
+              cpu: 1 # For first requests and peak loads
+              memory: 128Mi
+      restartPolicy: Always

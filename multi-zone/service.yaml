@@ -1,0 +1,60 @@
+# This services are simillar except zones
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    topology.kubernetes.io/zone: zn0
+  labels:
+    app: test-app-zn0
+  name: test-np-zn0
+  namespace: default
+spec:
+  type: NodePort 
+  selector:
+    app: test-app-zn0
+  externalTrafficPolicy: Local    # Preserve the original IP address of the client connecting
+  ports:
+    - protocol: TCP
+      nodePort: 31000 # May not work with multiple zones
+      port: 80
+      targetPort: http 
+--- 
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    topology.kubernetes.io/zone: zn1
+  labels:
+    app: test-app-zn1
+  name: test-np-zn1
+  namespace: default
+spec:
+  type: NodePort 
+  selector:
+    app: test-app-zn1
+  externalTrafficPolicy: Local    # Preserve the original IP address of the client connecting
+  ports:
+    - protocol: TCP
+      nodePort: 31000
+      port: 80
+      targetPort: http 
+--- 
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    topology.kubernetes.io/zone: zn2
+  labels:
+    app: test-app-zn2
+  name: test-np-zn2
+  namespace: default
+spec:
+  type: NodePort 
+  selector:
+    app: test-app-zn2
+  externalTrafficPolicy: Local    # Preserve the original IP address of the client connecting
+  ports:
+    - protocol: TCP
+      nodePort: 31000
+      port: 80
+      targetPort: http 
